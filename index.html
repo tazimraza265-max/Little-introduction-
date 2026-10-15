@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Little Something ♡</title>
+<style>
+*{box-sizing:border-box}
+:root{color-scheme:dark}
+body{margin:0;background:#09090d;color:#f5f1f5;font-family:Georgia,serif;min-height:100vh;display:grid;place-items:center;padding:22px}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 25%,#5b29451f,transparent 60%)}
+main{width:100%;max-width:470px;position:relative}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:38px;font:11px Arial,sans-serif;letter-spacing:3px;color:#b99aa9}
+#exit{background:none;border:1px solid #55434d;border-radius:20px;color:#d8c8d0;padding:9px 12px;font-size:11px}
+.progress{height:2px;background:#29232a;margin-bottom:32px}
+#bar{height:100%;width:0;background:#d89ab7;transition:width .4s}
+.small{color:#d89ab7;font:11px Arial,sans-serif;letter-spacing:3px;text-transform:uppercase}
+h1{font-size:clamp(32px,8vw,47px);font-weight:normal;line-height:1.15;margin:17px 0}
+p{color:#bcb3bc;line-height:1.85;font-size:15px}
+button,input,textarea{font:inherit}
+.actions{display:grid;gap:10px;margin-top:28px}
+.choice,.primary,.secondary{padding:15px 16px;border-radius:12px;border:1px solid #39313a;background:#141218;color:#f7eef4;text-align:left;cursor:pointer}
+.choice:active,.choice:hover{border-color:#c77da0}
+.primary{background:#d9a0b8;color:#20121a;border:0;text-align:center;font-weight:bold}
+.secondary{text-align:center;background:transparent}
+input,textarea{width:100%;padding:15px;background:#131117;border:1px solid #403641;border-radius:10px;color:white;margin-top:18px;outline:none}
+textarea{min-height:120px;resize:vertical}
+.note{font:11px Arial,sans-serif;color:#817680;margin-top:25px}
+a{color:#efb5ce;text-decoration:none}
+.hidden{display:none}
+.social{display:block;border:1px solid #403641;padding:16px;border-radius:12px;margin:12px 0;color:#f5eaf0}
+.social span{display:block;color:#b9aab5;font:12px Arial,sans-serif;margin-top:6px}
+</style>
+</head>
+<body>
+<main>
+<div class="top"><span>A LITTLE SOMETHING · ♡</span><button id="exit" onclick="end()">End anytime ×</button></div>
+<div class="progress"><div id="bar"></div></div>
+<section id="screen"></section>
+<div class="note">TAKE YOUR TIME · NO PRESSURE</div>
+</main>
+<script>
+const screen=document.getElementById('screen');
+let step=0,name='',comfort='',vibe='',description='';
+function render(){
+document.getElementById('bar').style.width=(step/8*100)+'%';
+const pages=[
+`<div class="small">A little note for you</div><h1>Hey, you.</h1><p>There's something I'd like to say, and I made this little page to say it.</p><p>You can leave whenever you want. Nothing here requires an answer, and there's absolutely no pressure.</p><div class="actions"><button class="primary" onclick="next()">Let's begin →</button></div>`,
+`<div class="small">Question 01 · Getting started</div><h1>What's your name?</h1><p>I'd like to know what to call you.</p><input id="answer" maxlength="60" placeholder="Your name (or a nickname)"><div class="actions"><button class="primary" onclick="saveName()">Continue →</button><button class="secondary" onclick="next()">Skip for now</button></div>`,
+`<div class="small">Question 02 · Your comfort matters</div><h1>Are you comfortable answering a few questions?</h1><p>It's completely okay if you'd rather not.</p><div class="actions"><button class="choice" onclick="comfort='Yes';next()">Yes, that's okay</button><button class="choice" onclick="end()">I'd rather not</button></div>`,
+`<div class="small">Question 03 · Getting to know each other</div><h1>Would you be comfortable getting to know someone new?</h1><div class="actions"><button class="choice" onclick="vibe='Sure';next()">Sure</button><button class="choice" onclick="vibe='Maybe';next()">Maybe</button><button class="choice" onclick="vibe='Not right now';showRespect()">Not right now</button></div>`,
+`<div class="small">Question 04 · A little about you</div><h1>How would you describe yourself?</h1><p>Pick whichever feels most like you.</p><div class="actions"><button class="choice" onclick="description='Shy';next()">A little shy</button><button class="choice" onclick="description='Talkative';next()">Talkative</button><button class="choice" onclick="description='Quiet';next()">Quiet</button><button class="choice" onclick="description='Funny';next()">Funny</button><button class="choice" onclick="description='A mix';next()">A little of everything</button><button class="secondary" onclick="next()">Skip this question</button></div>`,
+`<div class="small">Something honest</div><h1>There's something I've wanted to tell you…</h1><p>Honestly, I don't really know how to start this, because I've never really said something like this before.</p><p>I've seen you around, and I found myself becoming interested in you. I know we haven't really talked, and you probably don't know much about me yet, but I'd genuinely like to get to know you.</p><p>I'm not expecting you to feel the same way, and I don't want you to feel uncomfortable. I just wanted to be honest about my feelings instead of keeping them to myself.</p><p>If you'd be comfortable with it, I'd be happy to get to know you. And if you don't feel the same way, that's completely okay too. I'll respect your feelings either way.</p><p><em>I just wanted you to know. 🤍</em></p><div class="actions"><button class="primary" onclick="next()">Continue →</button></div>`,
+`<div class="small">A little about me</div><h1>Let me introduce myself.</h1><p>My name is Tazim, and many of my friends call me Raaz. Ahmm, yeah… that's what they call me.</p><p>I've already passed 10th grade, so this year I'm helping out with my father's work. Next year, I plan to go to college.</p><p>That's a little about me. I thought it was only fair that you got to know who made this page.</p><div class="actions"><button class="primary" onclick="next()">One last thing →</button></div>`,
+`<div class="small">If you'd like to connect</div><h1>Here I am.</h1><p>If you'd ever like to talk, you can find me here. Feel free to say hi if you'd like — no pressure.</p><a class="social" href="https://www.instagram.com/tazimx_/" target="_blank" rel="noopener">Instagram <span>@tazimx_ ↗</span></a><a class="social" href="https://www.snapchat.com/add/tazim6565" target="_blank" rel="noopener">Snapchat <span>tazim6565 ↗</span></a><div class="actions"><button class="primary" onclick="next()">Finish →</button></div>`,
+`<div class="small">Thank you for reading</div><h1>Whatever you feel, it's okay.</h1><p>Thank you for taking a little time to read this. Whatever you think, I respect it. I hope you have a lovely day.</p><p>— Tazim ♡</p><div class="actions"><button class="secondary" onclick="end()">Close this page</button></div>`
+];
+screen.innerHTML=pages[step]||pages[0];
+}
+function next(){step=Math.min(step+1,8);render()}
+function saveName(){name=document.getElementById('answer').value.trim();next()}
+function showRespect(){screen.innerHTML='<div class="small">Thank you for being honest</div><h1>That's completely okay.</h1><p>You don't owe me a conversation or an explanation. Thank you for reading, and have a lovely day.</p><div class="actions"><button class="secondary" onclick="end()">Close this page</button></div>'}
+function end(){screen.innerHTML='<div class="small">All good</div><h1>Thanks for stopping by.</h1><p>You can close this tab whenever you like. Take care. ♡</p>';document.getElementById('bar').style.width='100%'}
+render();
+</script>
+</body>
+</html>
